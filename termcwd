@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sh -ue
+#!/usr/bin/env -S sh -e
 
 usage() {
 	name="$(basename "$0")"
@@ -11,11 +11,18 @@ Usage:
 EOF
 }
 
-props="$(xprop -notype -id "$(xdotool getwindowfocus)")"
-if echo "$props" | grep -qF "_NET_WM_PID"; then
-	pid="$(echo "$props" | cut -d= -f2 | tr -d ' ')"
-	echo "cd /proc/$pid/cwd" | zshxi "$TERMINAL" &
-else
-	$TERMINAL &
-fi
+termcwd() {
+	props="$(xprop -notype -id "$(xdotool getwindowfocus)")"
+	if echo "$props" | grep -qF "_NET_WM_PID"; then
+		pid="$(echo "$props" | grep "^_NET_WM_PID" | cut -d= -f2 | tr -d ' ')"
+		echo "cd $(realpath /proc/$pid/cwd)" | zshxi "$TERMINAL" &
+	else
+		$TERMINAL &
+	fi
+}
 
+case "$1" in
+	-h|--help) usage ;;
+	"") termcwd ;;
+	*) usage; exit 1 ;;
+esac
