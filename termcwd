@@ -1,0 +1,21 @@
+#!/usr/bin/env -S sh -ue
+
+usage() {
+	name="$(basename "$0")"
+	cat <<EOF
+Spawn a new terminal with an interactive zsh session in the working
+directory of the currently selected window.
+
+Usage:
+	$name
+EOF
+}
+
+props="$(xprop -notype -id "$(xdotool getwindowfocus)")"
+if echo "$props" | grep -qF "_NET_WM_PID"; then
+	pid="$(echo "$props" | cut -d= -f2 | tr -d ' ')"
+	echo "cd /proc/$pid/cwd" | zshxi "$TERMINAL" &
+else
+	$TERMINAL &
+fi
+

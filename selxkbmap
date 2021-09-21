@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+usage() {
+	name="$(basename "$0")"
+	cat <<EOF
+Pick a keyboard layout from a dmenu. Generates a list of all available layouts
+in /usr/share/X11/xkb/symbols prompts the user for a choice.
+
+Usage:
+	$name
+EOF
+}
+
+map=$(ls /usr/share/X11/xkb/symbols | dmenu -p 'Which layout?') && setxkbmap "$map"
