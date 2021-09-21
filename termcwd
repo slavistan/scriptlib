@@ -8,14 +8,38 @@ directory of the currently selected window.
 
 Usage:
 	$name
+
+Highly hacky. Can't be run manually from a terminal (will create children which
+will mess up the process tree). Bind to a hotkey.
 EOF
+}
+
+# Find the correct child whose cwd we want. Highly selective.
+walk() {
+	pid="$1"
+	while list="$(pgrep -lP "$pid")"; do
+		if [ "$(echo "$list" | wc -l)" -eq 1 ]; then
+			# If its only one child, pass it on
+			pid="$(echo "$list" | cut -d' ' -f1)"
+		else
+			# If there are multiple children select your favorite.
+			if line="$(echo "$list" | grep ' lf$')"; then
+				pid="$(echo "$line" | cut -d' ' -f1)"
+			else
+				pid="$(echo "$list" | head -1 | cut -d' ' -f1)"
+			fi
+		fi
+	done
+	echo "$pid"
 }
 
 termcwd() {
 	props="$(xprop -notype -id "$(xdotool getwindowfocus)")"
 	if echo "$props" | grep -qF "_NET_WM_PID"; then
 		pid="$(echo "$props" | grep "^_NET_WM_PID" | cut -d= -f2 | tr -d ' ')"
-		echo "cd $(realpath /proc/$pid/cwd)" | zshxi "$TERMINAL" &
+		targetpid="$(walk $pid)"
+		cwd="$(realpath /proc/$targetpid/cwd)"
+		echo "cd '$cwd'" | zshxi "$TERMINAL" &
 	else
 		$TERMINAL &
 	fi
@@ -23,6 +47,11 @@ termcwd() {
 
 case "$1" in
 	-h|--help) usage ;;
-	"") termcwd ;;
-	*) usage; exit 1 ;;
+	*) termcwd ;;
 esac
+
+# ???: Why can't zathura's /proc/pid/cwd be read?
+# TODO: Refactor as a python script.
+#       Think of a proper configuration format for how to traverse the tree.
+#       Take not of suckers who don't set the cwd, e.g.
+#       - evince
