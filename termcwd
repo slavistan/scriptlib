@@ -3,8 +3,8 @@
 usage() {
 	name="$(basename "$0")"
 	cat <<EOF
-Spawn a new terminal with an interactive zsh session in the working
-directory of the currently selected window.
+Spawn a new terminal with an interactive zsh session in the working directory of
+the process which owns the currently selected window.
 
 Usage:
 	$name
@@ -15,6 +15,7 @@ EOF
 }
 
 # Find the correct child whose cwd we want. Highly selective.
+# TODO: Use a single pass with `ps` only.
 walk() {
 	pid="$1"
 	while list="$(pgrep -lP "$pid")"; do
