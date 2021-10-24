@@ -1,4 +1,4 @@
-#!/usr/bin/env -S sh -e
+#!/usr/bin/env -S zsh -e
 
 usage() {
 	name="$(basename "$0")"
@@ -39,11 +39,11 @@ termcwd() {
 	if echo "$props" | grep -qF "_NET_WM_PID"; then
 		pid="$(echo "$props" | grep "^_NET_WM_PID" | cut -d= -f2 | tr -d ' ')"
 		targetpid="$(walk $pid)"
-		cwd="$(realpath /proc/$targetpid/cwd)"
-		echo "cd '$cwd'" | zshxi "$TERMINAL" &
+		target_dir="$(realpath /proc/$targetpid/cwd)"
 	else
-		$TERMINAL &
+		target_dir="$HOME"
 	fi
+	zshxi <<< "cd ${(q)target_dir}" &
 }
 
 case "$1" in
@@ -51,7 +51,6 @@ case "$1" in
 	*) termcwd ;;
 esac
 
-# ???: Why can't zathura's /proc/pid/cwd be read?
 # TODO: Refactor as a python script.
 #       Think of a proper configuration format for how to traverse the tree.
 #       Take not of suckers who don't set the cwd, e.g.
