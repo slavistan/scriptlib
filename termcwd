@@ -52,6 +52,7 @@ case "$1" in
 esac
 
 # TODO: Refactor as a python script.
-#       Think of a proper configuration format for how to traverse the tree.
-#       Take not of suckers who don't set the cwd, e.g.
-#       - evince
+# TODO: Think of a proper configuration format for how to traverse the pstree.
+#       Take note of suckers who don't set the cwd, e.g.
+#       - evince, nvim (sometimes)
+# TODO: Windows of root applications don't work at all
