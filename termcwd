@@ -1,4 +1,4 @@
-#!/usr/bin/env -S zsh -e
+#!/usr/bin/env zsh
 
 usage() {
 	name="$(basename "$0")"
@@ -51,8 +51,7 @@ case "$1" in
 	*) termcwd ;;
 esac
 
-# TODO: Refactor as a python script.
+# TODO: Refactor as a python/go script.
 # TODO: Think of a proper configuration format for how to traverse the pstree.
 #       Take note of suckers who don't set the cwd, e.g.
 #       - evince, nvim (sometimes)
-# TODO: Windows of root applications don't work at all
