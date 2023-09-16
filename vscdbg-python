@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+# Requires xdotool, xprop, debugpy
+
+# Check whether vscode is the currently active window
+wid="$(xdotool getactivewindow)"
+wtype="$(xprop -id "$wid" -notype WM_CLASS | tr -d ' "' | cut -d= -f2)"
+if [ ! "$wtype" = "code,Code" ]; then
+	echo "Not inside VSCode. Abort." >&2
+	exit 1
+fi
+
+# Time emulated keypress with xdotool
+(sleep 2 && xdotool key shift+F5) &
+keypress_pid="$!"
+
+# Start debugger, waiting for the emulated keypresses
+python -m debugpy --listen 5678 --wait-for-client "$@"
+
+# If the debugger fails to start (missing file, wrong arguments), we prevent
+# the keypresses from occuring by killing the background process.
+kill "$keypress_pid" 2>/dev/null
