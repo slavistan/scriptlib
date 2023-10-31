@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-# Requires xdotool, xprop, debugpy
+# Part of the disgusting hack to get commandline driven debugging up and
+# running in vscode. Requires xdotool, xprop, debugpy.
 
 # Check whether vscode is the currently active window
 wid="$(xdotool getactivewindow)"
@@ -11,11 +12,12 @@ if [ ! "$wtype" = "code,Code" ]; then
 fi
 
 # Time emulated keypress with xdotool
-(sleep 2 && xdotool key shift+F5) &
+(sleep 1 && xdotool key ctrl+shift+F5) &
 keypress_pid="$!"
 
-# Start debugger, waiting for the emulated keypresses
-python -m debugpy --listen 5678 --wait-for-client "$@"
+# Start debugger and wait for client to attach. The envvar silences a warning
+# about frozen modules.
+PYDEVD_DISABLE_FILE_VALIDATION=1 python -m debugpy --listen 56789 --wait-for-client "$@"
 
 # If the debugger fails to start (missing file, wrong arguments), we prevent
 # the keypresses from occuring by killing the background process.
