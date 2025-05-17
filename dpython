@@ -13,7 +13,5 @@ else
 	port="$DEFAULT_PORT"
 fi
 
-# Start debugger and wait for client to attach. The envvar silences a warning
-# about frozen modules.
-PYDEVD_DISABLE_FILE_VALIDATION=1 python -m debugpy --listen "$port" --wait-for-client "$@"
+python -m debugpy --listen "$port" --wait-for-client "$@"
 
